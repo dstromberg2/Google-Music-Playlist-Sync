@@ -162,17 +162,17 @@ def parse_xml(local_playlist_path):
     # Convert the XML elements to a dict
     tracks = []
     for track in tracks_elements:
-        track = {}
+        ntrack = {}
         for field in track:
             if field.tag == "{http://xspf.org/ns/0/}title":
-                track['title'] = field.text.strip()
+                ntrack['title'] = field.text.strip()
             elif field.tag == "{http://xspf.org/ns/0/}creator":
-                track['artist'] = field.text.strip()
+                ntrack['artist'] = field.text.strip()
             elif field.tag == "{http://xspf.org/ns/0/}album":
-                track['album'] = field.text.strip()
+                ntrack['album'] = field.text.strip()
             elif field.tag == "{http://xspf.org/ns/0/}location":
-                track['path'] = field.text.strip()
-        tracks.append(track)
+                ntrack['path'] = field.text.strip()
+        tracks.append(ntrack)
 
     return (playlist_name, tracks)
 
