@@ -268,7 +268,7 @@ def sync_playlist(api,  remote_library,  local_tracks,  local_playlist_name):
     for item in remote_playlists:
         if item['name'] == local_playlist_name:
             # TODO: Handle multiple playlists with the same name
-            remote_playlist_id = item['name']
+            remote_playlist_id = item['id']
             print "Found playlist with ID: " + remote_playlist_id
             break
 
