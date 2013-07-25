@@ -33,7 +33,7 @@ from mutagen.easyid3       import EasyID3
 from mutagen.easymp4       import EasyMP4
 from mutagen.flac          import FLAC
 from mutagen.id3           import ID3NoHeaderError
-from gmusicapi             import Webclient
+from gmusicapi             import Mobileclient
 
 import pprint
 
@@ -84,7 +84,7 @@ def parse_cmdline_args():
 
 
 def login_to_google_music(user):
-    api = Webclient()
+    api = Mobileclient()
     attempts = 0
 
     while attempts < 3:
@@ -255,20 +255,14 @@ def find_track(l_track,  trackList):
 
 def sync_playlist(api,  remote_library,  local_tracks,  local_playlist_name):
     # Get all available playlists from Google Music
-    remote_playlists = api.get_all_playlist_ids(False, True)
+    remote_playlists = api.get_all_playlists(False, False)
 
     # Try to find the playlist if it already exists
     remote_playlist_id = None
-    remote_playlist_items = remote_playlists['user'].items()
-    for i in range(len(remote_playlist_items)):
-        if remote_playlist_items[i][0] == local_playlist_name:
-            # Check if there are multiple playlists with that name
-            if type(remote_playlist_items[i][1]) is list:
-                # TODO: Handle multiple playlists with the same name
-                print "Found multiple playlists with that name. Defaulting to the first one."
-                remote_playlist_id = remote_playlist_items[i][1][0]
-            else:
-                remote_playlist_id = remote_playlist_items[i][1]
+    for item in remote_playlists:
+        if item['name'] == local_playlist_name:
+            # TODO: Handle multiple playlists with the same name
+            remote_playlist_id = item['name']
             print "Found playlist with ID: " + remote_playlist_id
             break
 
@@ -276,9 +270,13 @@ def sync_playlist(api,  remote_library,  local_tracks,  local_playlist_name):
     if remote_playlist_id is None:
         print "Playlist not found on Google Music. Creating it."
         remote_playlist_id = api.create_playlist(local_playlist_name)
+    else:
+        print "A playlist already exists with that name. Updating existing playlists is not currently supported."
+        return False
 
+    # TODO: Reintegrate checking existing playlists
     # Get the songs on the playlist
-    remote_tracks = api.get_playlist_songs(remote_playlist_id)
+    #remote_tracks = api.get_playlist_songs(remote_playlist_id)
 
     # Check if each track in the local playlist is on the Google Music playlist
     tracks_to_add_names = []
@@ -286,8 +284,8 @@ def sync_playlist(api,  remote_library,  local_tracks,  local_playlist_name):
     for local_track in local_tracks:
         added = False
         # Check if the track is already present in the playlist
-        if find_track(local_track,  remote_tracks) != False:
-            added = True
+        #if find_track(local_track,  remote_tracks) != False:
+        #    added = True
 
         # Add the track to the playlist
         if not added:
