@@ -238,6 +238,7 @@ def clean_string(string):
 def find_track(l_track,  trackList):
     seqMatchArtist = difflib.SequenceMatcher(None, "foobar", clean_string(l_track['artist']))
     seqMatchTitle = difflib.SequenceMatcher(None, "foobar", clean_string(l_track['title']))
+    bestMatch = 0
 
     for remoteTrack in trackList:
         seqMatchArtist.set_seq1(clean_string(remoteTrack['artist']))
@@ -247,10 +248,15 @@ def find_track(l_track,  trackList):
         scoreTitle = seqMatchTitle.quick_ratio()
         
         totalScore = (scoreArtist + scoreTitle) / 2
-        if totalScore >= 0.85:
+        if totalScore == 1:
             return remoteTrack
-
-    return False
+        elif totalScore > bestMatch:
+            bestMatch = totalScore
+            bestMatchTrack = remoteTrack
+    if bestMatch >= 0.85:
+        return bestMatchTrack
+    else:
+        return False
 
 
 def sync_playlist(api,  remote_library,  local_tracks,  local_playlist_name):
